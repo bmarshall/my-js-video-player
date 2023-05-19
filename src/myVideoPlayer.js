@@ -49,8 +49,20 @@ mediaSource.addEventListener('sourceopen', async () => {
   sourceBuffer.addEventListener('updatestart', async () => {
     console.log('Segment update started');
 
-    // Increment the current segment index
-    //TODO: We need to stop and call endOfStream once we reach the end of our segment array.
+    // we have reached the end of our playlist so stop the loop and let mediaSource know we
+    // are at the end
+    console.log(
+      `${currentSegment} === ${selectedPlaylist.segments.length}: `,
+      currentSegment === selectedPlaylist.segments.length
+    );
+
+    if (currentSegment === selectedPlaylist.segments.length) {
+      console.log('We have fetched and buffered all segments');
+      mediaSource.endOfStream();
+      return;
+    }
+
+    // Keep the loop going by increment the current segment index
     currentSegment++;
 
     // Fetch the next segment
