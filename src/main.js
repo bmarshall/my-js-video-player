@@ -2,7 +2,7 @@ import {
   parseHLSManifest,
   parseHLSPlaylist,
   fetchSegment,
-} from './myVideoPlayer.js';
+} from './myVideoPlayerUtils.js';
 import { createTransmuxerManager } from './transmuxerManager.js';
 
 // Get the video element by its ID
