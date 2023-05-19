@@ -1,0 +1,27 @@
+{
+  "name": "my-js-video-player",
+  "version": "1.0.0",
+  "description": "This minimalistic HLS video player serves as a demonstration tool for showcasing streaming media principles ",
+  "main": "myVideoPlayer.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "vite"
+  },
+  "author": "Brian Marshall",
+  "license": "ISC",
+  "devDependencies": {
+    "vite": "^4.3.5",
+    "webpack-cli": "^5.1.0"
+  },
+  "dependencies": {
+    "mux.js": "^6.3.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bmarshall/my-js-video-player.git"
+  },
+  "bugs": {
+    "url": "https://github.com/bmarshall/my-js-video-player/issues"
+  },
+  "homepage": "https://github.com/bmarshall/my-js-video-player#readme"
+}
