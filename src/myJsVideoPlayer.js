@@ -1,6 +1,7 @@
 import { fetchSegment } from './myVideoPlayerUtils.js';
 import { createTransmuxerManager } from './transmuxerManager.js';
 import { segmentManager } from './segmentManager.js';
+import { sourceBufferManager } from './sourceBufferManager.js';
 
 export async function myJsVideoPlayer(video, baseURL, manifest) {
   // Create a new MediaSource object and set it as the video's source
@@ -22,6 +23,7 @@ export async function myJsVideoPlayer(video, baseURL, manifest) {
     // Create a new source buffer and add it to the media source
     const sourceBuffer = mediaSource.addSourceBuffer(mime);
     const transmuxSegment = createTransmuxerManager(sourceBuffer);
+    const { calculateRemainingSpace } = sourceBufferManager(sourceBuffer);
 
     // Event listener for when the source buffer's update ends
     sourceBuffer.addEventListener('updateend', () => {
@@ -36,6 +38,7 @@ export async function myJsVideoPlayer(video, baseURL, manifest) {
     // Event listener for when the source buffer's update starts
     sourceBuffer.addEventListener('updatestart', async () => {
       console.log('Segment update started');
+      console.log(`Remaining Space ${calculateRemainingSpace()}`);
 
       const segmentUrl = getNextSegmentURL();
 
