@@ -7,11 +7,34 @@ const calculateBufferedDuration = sourceBuffer => {
   return bufferedDuration;
 };
 
+/*const findBufferedDurationOfTimeInSec = (sourceBuffer, timeInSec) => {
+  for (let i = 0; i < sourceBuffer.buffered.length; i++) {
+    if (
+      sourceBuffer.buffered.start(i) <= timeInSec &&
+      sourceBuffer.buffered.end(i) >= timeInSec
+    ) {
+      return i;
+    }
+  }
+  return -1;
+};*/
+
 export function sourceBufferManager(sourceBuffer, bufferCapacity = 60) {
   return {
-    calculateRemainingSpace: () => {
-      const bufferedDuration = calculateBufferedDuration(sourceBuffer);
-      return bufferCapacity - bufferedDuration;
+    haveSpaceToAppend: segment => {
+      return true;
+      /*const bufferedDuration = calculateBufferedDuration(sourceBuffer);
+        return bufferCapacity - bufferedDuration;*/
     },
+    shouldRemoveSegmentsFromBackBuffer: (
+      currentPlayheadTimeInSec,
+      backBufferTimeInSec = 10
+    ) => {
+      return (
+        sourceBuffer.buffered.start(0) <=
+        currentPlayheadTimeInSec - backBufferTimeInSec
+      );
+    },
+    removeSegments: () => false,
   };
 }

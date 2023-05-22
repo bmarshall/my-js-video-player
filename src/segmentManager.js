@@ -14,7 +14,6 @@ export async function segmentManager(baseURL, manifestUrl) {
   );
 
   return {
-    //TODO:  Come back and clean this up so getNextSegment URL is not musating the current segment
     getNextSegmentURL: () => {
       console.log('getNextSegmentURL');
       if (currentSegment === selectedPlaylist.segments.length) {
@@ -23,8 +22,10 @@ export async function segmentManager(baseURL, manifestUrl) {
       }
       const playlistPath = selectedManifestStream.url.match(/^[^/]+\//)[0];
       const segmentURL = `${baseURL}${playlistPath}${selectedPlaylist.segments[currentSegment].url}`;
-      currentSegment++;
       return segmentURL;
+    },
+    incrementSegmentCounter: () => {
+      currentSegment++;
     },
     codecs: selectedManifestStream.codecs,
   };

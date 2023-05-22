@@ -12,10 +12,8 @@ export async function myJsVideoPlayer(video, baseURL, manifest) {
   mediaSource.addEventListener('sourceopen', async () => {
     //initalize the segmentSegmentManager.  This will parse manifests and
     // keep track of the current segment.
-    const { codecs, getNextSegmentURL } = await segmentManager(
-      baseURL,
-      manifest
-    );
+    const { codecs, getNextSegmentURL, incrementSegmentCounter } =
+      await segmentManager(baseURL, manifest);
 
     // Set the MIME type based on the selected manifest stream's codecs
     const mime = `video/mp4; codecs="${codecs}"`;
@@ -23,13 +21,13 @@ export async function myJsVideoPlayer(video, baseURL, manifest) {
     // Create a new source buffer and add it to the media source
     const sourceBuffer = mediaSource.addSourceBuffer(mime);
     const transmuxSegment = createTransmuxerManager(sourceBuffer);
-    const { calculateRemainingSpace } = sourceBufferManager(sourceBuffer);
+    const {
+      shouldRemoveSegmentsFromBackBuffer,
+      haveSpaceToAppend,
+      removeSegments,
+    } = sourceBufferManager(sourceBuffer);
 
-    // Event listener for when the source buffer's update ends
-    sourceBuffer.addEventListener('updateend', async () => {
-      console.log('Segment update complete');
-      console.log(`Remaining Space ${calculateRemainingSpace()}`);
-
+    const fetchAndAppendCurrentSegment = async () => {
       const segmentUrl = getNextSegmentURL();
 
       if (!segmentUrl) {
@@ -43,6 +41,23 @@ export async function myJsVideoPlayer(video, baseURL, manifest) {
 
       // Push the segment to the transmuxer and flush it
       transmuxSegment(segment);
+    };
+
+    // Event listener for when the source buffer's update ends
+    sourceBuffer.addEventListener('updateend', async () => {
+      console.log('Segment update complete');
+
+      //todo: flesh out this logic
+      //todo:  see if we can pass in segment length instead of using a hardcoded 10 sec
+      /*if (shouldRemoveSegmentsFromBackBuffer(video.currentTime)) {
+        console.log('we should remove segments');
+        removeSegments();
+      }*/
+
+      // if segment puts us past our buffer boundary, clear buffer and try again in n seconds
+      // else
+      incrementSegmentCounter();
+      fetchAndAppendCurrentSegment();
     });
 
     // Event listener for source buffer errors
@@ -57,11 +72,7 @@ export async function myJsVideoPlayer(video, baseURL, manifest) {
 
     // Prime the pump
     // Fetch the initial segment
-    const segmentURL = getNextSegmentURL();
-    const segment = await fetchSegment(segmentURL);
-
-    // Push the inital segment to the transmuxer and flush it
-    transmuxSegment(segment);
+    fetchAndAppendCurrentSegment();
   });
 
   mediaSource.addEventListener('sourceended', () => {
