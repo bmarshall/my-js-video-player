@@ -26,18 +26,8 @@ export async function myJsVideoPlayer(video, baseURL, manifest) {
     const { calculateRemainingSpace } = sourceBufferManager(sourceBuffer);
 
     // Event listener for when the source buffer's update ends
-    sourceBuffer.addEventListener('updateend', () => {
+    sourceBuffer.addEventListener('updateend', async () => {
       console.log('Segment update complete');
-    });
-
-    // Event listener for source buffer errors
-    sourceBuffer.addEventListener('error', error => {
-      console.error('Error appending segment: ', error);
-    });
-
-    // Event listener for when the source buffer's update starts
-    sourceBuffer.addEventListener('updatestart', async () => {
-      console.log('Segment update started');
       console.log(`Remaining Space ${calculateRemainingSpace()}`);
 
       const segmentUrl = getNextSegmentURL();
@@ -53,6 +43,16 @@ export async function myJsVideoPlayer(video, baseURL, manifest) {
 
       // Push the segment to the transmuxer and flush it
       transmuxSegment(segment);
+    });
+
+    // Event listener for source buffer errors
+    sourceBuffer.addEventListener('error', error => {
+      console.error('Error appending segment: ', error);
+    });
+
+    // Event listener for when the source buffer's update starts
+    sourceBuffer.addEventListener('updatestart', () => {
+      console.log('Segment update started');
     });
 
     // Prime the pump
